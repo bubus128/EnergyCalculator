@@ -4,9 +4,9 @@ namespace EnergyCalculator.Business.Results;
 
 public class CostResponse
 {
-    public string SupplierName { get; set; }
-    public string PlanName { get; set; }
-    public double Cost { get; set; }
+    public required string SupplierName { get; init; }
+    public required string PlanName { get; init; }
+    public double Cost { get; init; }
     private double RoundCost => Math.Round(Cost, 2, MidpointRounding.AwayFromZero);
     
     public override string ToString()

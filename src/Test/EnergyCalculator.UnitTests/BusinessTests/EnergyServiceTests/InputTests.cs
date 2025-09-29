@@ -68,6 +68,6 @@ public class InputTests
 
         // Assert
         A.CallTo(() => _repository.AddPlan(A<EnergyPlan>.Ignored))
-            .MustHaveHappened(plans.Count, Times.Exactly);
+            .MustHaveHappened(plans!.Count, Times.Exactly);
     }
 }

@@ -37,7 +37,7 @@ public class CalculateTests
     public void Calculate_WithGivenUsage_ReturnsExpectedOutput(double usage, string expectedOutput)
     {
         // Arrange
-        A.CallTo(() => _repository.GetPlans()).Returns(_plans);
+        A.CallTo(() => _repository.GetPlans())!.Returns(_plans);
 
         // Act
         string result = _service.Calculate(usage);

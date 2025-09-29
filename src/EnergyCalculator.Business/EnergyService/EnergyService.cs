@@ -16,24 +16,22 @@ public class EnergyService(IEnergyPlanRepository energyPlanRepository) : IEnergy
         {
             throw new  FileNotFoundException($"Energy plan file not found: {filePath}");
         }
-        if (Path.GetExtension(filePath)?.ToLower() != ".json")
+        if (Path.GetExtension(filePath).ToLower() != ".json")
         {
             throw new ArgumentException($"Invalid file type. Please provide a JSON file: {filePath}");
         }
-        
-        await using (var stream = File.OpenRead(filePath))
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-            };
 
-            foreach (var energyPlan in await JsonSerializer.DeserializeAsync<List<EnergyPlan>>(stream, options) 
-                                       ?? throw new InvalidOperationException())
-            {
-                energyPlanRepository.AddPlan(energyPlan);
-            }
+        await using var stream = File.OpenRead(filePath);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        };
+
+        foreach (var energyPlan in await JsonSerializer.DeserializeAsync<List<EnergyPlan>>(stream, options) 
+                                   ?? throw new InvalidOperationException())
+        {
+            energyPlanRepository.AddPlan(energyPlan);
         }
     }
 

@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using EnergyCalculator.Data.Models;
 
 namespace EnergyCalculator.Data.Repositories;
