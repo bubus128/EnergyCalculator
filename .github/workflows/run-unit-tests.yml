@@ -30,4 +30,4 @@ jobs:
         run: dotnet build ./src/EnergyCalculator.sln --configuration Release --no-restore
 
       - name: Run unit tests
-        run: dotnet test ./src/Test/EnergyCalculator.UnitTest/EnergyCalculator.UnitTest.csproj --configuration Release --no-build --verbosity normal
+        run: dotnet test ./src/Test/EnergyCalculator.UnitTests/EnergyCalculator.UnitTests.csproj --configuration Release --no-build --verbosity normal
