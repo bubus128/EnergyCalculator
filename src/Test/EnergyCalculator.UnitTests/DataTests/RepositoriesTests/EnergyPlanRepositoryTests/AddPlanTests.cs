@@ -18,7 +18,12 @@ public class AddPlanTests
     public void AddPlan_WhenCalled_ShouldAddPlanToRepository()
     {
         // Arrange
-        var plan = new EnergyPlan { PlanName = "TestPlan", SupplierName = "TestSupplier" };
+        var plan = new EnergyPlan
+        {
+            PlanName = "TestPlan",
+            SupplierName = "TestSupplier",
+            Prices = []
+        };
 
         // Act
         _repository.AddPlan(plan);
@@ -32,8 +37,18 @@ public class AddPlanTests
     public void AddPlan_MultiplePlans_ShouldPreserveOrder()
     {
         // Arrange
-        var plan1 = new EnergyPlan { PlanName = "Plan1", SupplierName = "Supplier1" };
-        var plan2 = new EnergyPlan { PlanName = "Plan2", SupplierName = "Supplier2" };
+        var plan1 = new EnergyPlan
+        {
+            PlanName = "Plan1",
+            SupplierName = "Supplier1",
+            Prices = []
+        };
+        var plan2 = new EnergyPlan
+        {
+            PlanName = "Plan2",
+            SupplierName = "Supplier2",
+            Prices = []
+        };
 
         // Act
         _repository.AddPlan(plan1);
