@@ -1,11 +1,12 @@
 using System.Text.Json;
+using EnergyCalculator.Business.PlanReader;
 using EnergyCalculator.Business.Results;
 using EnergyCalculator.Data.Models;
 using EnergyCalculator.Data.Repositories;
 
 namespace EnergyCalculator.Business.EnergyService;
 
-public class EnergyService(IEnergyPlanRepository energyPlanRepository) : IEnergyService
+public class EnergyService(IEnergyPlanRepository energyPlanRepository, IPlanLoader planLoader) : IEnergyService
 {
     private const double Vat = 0.05;
     private const double PenceToPound = 0.01;
@@ -22,17 +23,8 @@ public class EnergyService(IEnergyPlanRepository energyPlanRepository) : IEnergy
         }
 
         await using var stream = File.OpenRead(filePath);
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-        };
-
-        foreach (var energyPlan in await JsonSerializer.DeserializeAsync<List<EnergyPlan>>(stream, options) 
-                                   ?? throw new InvalidOperationException())
-        {
-            energyPlanRepository.AddPlan(energyPlan);
-        }
+        var plans = await planLoader.LoadAsync(stream);
+        foreach (var plan in plans) energyPlanRepository.AddPlan(plan);
     }
 
     public string Calculate(double usage)

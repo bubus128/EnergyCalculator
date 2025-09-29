@@ -1,65 +1,49 @@
 using EnergyCalculator.Business.EnergyService;
+using EnergyCalculator.Console.Commands;
 using EnergyCalculator.Console.Exceptions;
 
 namespace EnergyCalculator.Console.CommandDispatcher;
 
 public class CommandDispatcher : ICommandDispatcher
 {
-    private const string InputCommandName = "input";
-    private const string CalculateCommandName = "annual_cost";
-    
-    private readonly IEnergyService _energyService;
+    private readonly Dictionary<string, ICommand> _commands;
 
-    private readonly Dictionary<string, Func<string[], Task<string>>> _commands;
-
-    public CommandDispatcher(IEnergyService energyService)
+    public CommandDispatcher(IEnumerable<ICommand> commands)
     {
-        _energyService = energyService;
-        _commands = new Dictionary<string, Func<string[], Task<string>>>
-        {
-            { InputCommandName, HandleInputAsync },
-            { CalculateCommandName, HandleCalculateAsync }
-        };
-    }
-    
-    public async Task<string> DispatchAsync(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-            throw new InvalidCommandException(string.Empty);
+        _commands = new Dictionary<string, ICommand>(StringComparer.OrdinalIgnoreCase);
 
-        var parts = input.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-        var commandName = parts[0].ToLowerInvariant();
-        var args = parts.Length > 1
-            ? parts[1].Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            : [];
-
-        if (!_commands.TryGetValue(commandName, out var action))
+        foreach (var command in commands)
         {
-            throw new InvalidCommandException(commandName);
-            
+            if (!_commands.TryAdd(command.Name, command))
+            {
+                throw new InvalidOperationException(
+                    $"Duplicate command name detected: {command.Name}");
+            }
         }
-        
-        return await action(args);
-    }
-    
-    private async Task<string> HandleInputAsync(string[] args)
-    {
-        if (args.Length != 1)
-        {
-            throw new ArgumentsNumberException(1, args.Length);
-        }
-
-        await _energyService.Input(args[0]);
-        return "File processing complete";
     }
 
-    private async Task<string> HandleCalculateAsync(string[] args)
+    /// <summary>
+    /// Dispatches an input line to the appropriate command.
+    /// </summary>
+    /// <param name="inputLine">The raw input string from the user.</param>
+    /// <returns>
+    /// The result string from the command (or null if exit/terminate).
+    /// </returns>
+    public async Task<string?> DispatchAsync(string inputLine)
     {
-        if (args.Length != 1 || !float.TryParse(args[0], out var usage))
+        if (string.IsNullOrWhiteSpace(inputLine))
+            return null;
+
+        // First word is the command name
+        var parts = inputLine.Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+        var commandName = parts[0];
+        var rawArgs = parts.Length > 1 ? parts[1] : string.Empty;
+
+        if (_commands.TryGetValue(commandName, out var command))
         {
-            throw new ArgumentsNumberException(1, args.Length);
+            return await command.ExecuteAsync([rawArgs]);
         }
 
-        return _energyService.Calculate(usage);
+        throw new InvalidOperationException($"Unknown command: {commandName}");
     }
 }
