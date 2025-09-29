@@ -5,4 +5,5 @@ public class EnergyPlan
     public string PlanName { get; set; }
     public string SupplierName  { get; set; }
     public Price[] Prices { get; set; }
+    public double? StandingCharge { get; set; }
 }

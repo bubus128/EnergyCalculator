@@ -2,6 +2,6 @@ namespace EnergyCalculator.Data.Models;
 
 public class Price
 {
-    public float Rate { get; set; }
-    public float? Threshold { get; set; }
+    public double Rate { get; set; }
+    public double? Threshold { get; set; }
 }
