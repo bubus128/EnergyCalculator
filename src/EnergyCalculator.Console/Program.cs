@@ -1,64 +1,37 @@
-// See https://aka.ms/new-console-template for more information
-
+using System.Text.Json;
 using EnergyCalculator.Business.EnergyService;
+using EnergyCalculator.Business.PlanReader;
+using EnergyCalculator.Console.AppRunner;
 using EnergyCalculator.Console.CommandDispatcher;
-using EnergyCalculator.Console.Exceptions;
+using EnergyCalculator.Console.Commands;
 using EnergyCalculator.Data.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-const string exitCommandName = "exit";
-
 var builder = Host.CreateApplicationBuilder(args);
+
+// Register json serialization options
+builder.Services.AddSingleton(new JsonSerializerOptions
+{
+    PropertyNameCaseInsensitive = true,
+    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+});
 
 // Register services
 builder.Services.AddSingleton<IEnergyPlanRepository, EnergyPlanRepository>();
 builder.Services.AddSingleton<IEnergyService, EnergyService>();
 builder.Services.AddSingleton<ICommandDispatcher, CommandDispatcher>();
+builder.Services.AddSingleton<IPlanLoader, PlanLoader>();
+
+// Register commands
+builder.Services.AddSingleton<ICommand, InputCommand>();
+builder.Services.AddSingleton<ICommand, CalculateCommand>();
+
+// Register runner
+builder.Services.AddSingleton<IAppRunner, AppRunner>();
 
 using var host = builder.Build();
 
 // Get dispatcher from container
-var dispatcher = host.Services.GetRequiredService<ICommandDispatcher>();
-
-PrintIntro();
-
-while (true)
-{
-    try
-    {
-        // Read a command
-        var input = Console.ReadLine();
-
-        if (string.Equals(input, exitCommandName, StringComparison.OrdinalIgnoreCase))
-            break;
-
-        // Execute a command
-        Console.WriteLine(await dispatcher.DispatchAsync(input ?? string.Empty));
-    }
-    catch (InvalidCommandException)
-    {
-        Console.WriteLine("Invalid command");
-        PrintAvailableCommands();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine(ex.Message);
-    }
-}
-
-void PrintIntro()
-{
-    Console.WriteLine("=== Energy Calculator Console ===");
-    PrintAvailableCommands();
-    Console.WriteLine();
-    Console.WriteLine("Type a command and press Enter:");
-}
-
-void PrintAvailableCommands()
-{
-    Console.WriteLine("Available commands:");
-    Console.WriteLine("  input <path>           : process the file at the given path");
-    Console.WriteLine("  annual_cost <number>   : run calculation with the given number");
-    Console.WriteLine("  exit                   : quit the application");
-}
+var runner = host.Services.GetRequiredService<IAppRunner>();
+await runner.RunAsync();

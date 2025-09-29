@@ -1,5 +1,6 @@
 using System.Text.Json;
 using EnergyCalculator.Business.EnergyService;
+using EnergyCalculator.Business.PlanReader;
 using EnergyCalculator.Data.Models;
 using EnergyCalculator.Data.Repositories;
 using FakeItEasy;
@@ -11,14 +12,16 @@ public class CalculateTests
 {
 
     private IEnergyPlanRepository _repository;
+    private IPlanLoader _planLoader;
     private EnergyService _service;
     private IReadOnlyList<EnergyPlan>? _plans;
 
     [SetUp]
     public void Setup()
     {
+        _planLoader = A.Fake <IPlanLoader>();
         _repository = A.Fake<IEnergyPlanRepository>();
-        _service = new EnergyService(_repository);
+        _service = new EnergyService(_repository, _planLoader);
 
         // Load test data from JSON file
         var jsonPath = Path.Combine(TestContext.CurrentContext.TestDirectory, "Data", "MockPlans.json");
