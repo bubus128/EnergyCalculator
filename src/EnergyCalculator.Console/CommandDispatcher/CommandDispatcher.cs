@@ -31,7 +31,7 @@ public class CommandDispatcher : ICommandDispatcher
         var commandName = parts[0].ToLowerInvariant();
         var args = parts.Length > 1
             ? parts[1].Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            : Array.Empty<string>();
+            : [];
 
         if (!_commands.TryGetValue(commandName, out var action))
         {

@@ -58,7 +58,7 @@ void PrintIntro()
 void PrintAvailableCommands()
 {
     Console.WriteLine("Available commands:");
-    Console.WriteLine("  a <path>     : process the file at the given path");
-    Console.WriteLine("  b <number>   : run calculation with the given number");
-    Console.WriteLine("  exit         : quit the application");
+    Console.WriteLine("  input <path>           : process the file at the given path");
+    Console.WriteLine("  annual_cost <number>   : run calculation with the given number");
+    Console.WriteLine("  exit                   : quit the application");
 }

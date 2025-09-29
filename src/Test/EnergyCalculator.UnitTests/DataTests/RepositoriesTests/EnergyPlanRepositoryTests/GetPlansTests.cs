@@ -28,7 +28,12 @@ public class GetPlansTests
     public void GetPlans_ReturnsReadOnlyList()
     {
         // Arrange
-        var plan = new EnergyPlan { PlanName = "ReadOnlyTest", SupplierName = "Supplier" };
+        var plan = new EnergyPlan
+        {
+            PlanName = "ReadOnlyTest",
+            SupplierName = "Supplier",
+            Prices = []
+        };
         _repository.AddPlan(plan);
 
         // Act
